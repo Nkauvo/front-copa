@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>🏆 Bolão da Copa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        /* Cores do Brasil e Copa */
+        :root {
+            --verde: #009739;
+            --amarelo: #FEDB00;
+            --azul: #002776;
+            --branco: #FFFFFF;
+            --cinza-fundo: #f0f2f5;
+            --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        * {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--cinza-fundo);
+            padding-bottom: 80px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .header-brasil {
+            background: linear-gradient(135deg, var(--verde) 0%, var(--amarelo) 50%, var(--azul) 100%);
+            padding: 16px 20px 20px;
+            border-radius: 0 0 32px 32px;
+            box-shadow: 0 4px 20px rgba(0, 39, 118, 0.25);
+        }
+
+        .header-title {
+            text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            letter-spacing: -0.5px;
+        }
+
+        .header-subtitle {
+            font-weight: 300;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        }
+
+        .card-bolao {
+            background: var(--branco);
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .card-bolao:active {
+            transform: scale(0.98);
+        }
+
+        .escudo {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        }
+
+        .escudo-sm {
+            width: 36px;
+            height: 36px;
+        }
+
+        .placar-input {
+            width: 48px;
+            height: 48px;
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            transition: all 0.2s;
+            color: var(--azul);
+        }
+
+        .placar-input:focus {
+            border-color: var(--verde);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 151, 57, 0.2);
+            background: white;
+        }
+
+        .placar-input:disabled {
+            opacity: 0.5;
+            background: #f1f5f9;
+        }
+
+        .btn-verde {
+            background: var(--verde);
+            color: white;
+            font-weight: 600;
+            padding: 10px 24px;
+            border-radius: 14px;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 151, 57, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-verde:active {
+            transform: scale(0.96);
+        }
+
+        .btn-verde:disabled {
+            opacity: 0.5;
+            transform: none;
+        }
+
+        .btn-amarelo {
+            background: var(--amarelo);
+            color: var(--azul);
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 14px;
+            transition: all 0.2s;
+            border: none;
+            box-shadow: 0 4px 12px rgba(254, 219, 0, 0.3);
+            cursor: pointer;
+        }
+
+        .btn-amarelo:active {
+            transform: scale(0.96);
+        }
+
+        .btn-amarelo:disabled {
+            opacity: 0.5;
+            transform: none;
+        }
+
+        .badge-pontos {
+            background: var(--amarelo);
+            color: var(--azul);
+            font-weight: 700;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+        }
+
+        .tab-active {
+            color: var(--verde);
+            border-bottom: 3px solid var(--verde);
+            font-weight: 700;
+        }
+
+        .tab-inactive {
+            color: #94a3b8;
+            border-bottom: 3px solid transparent;
+        }
+
+        .modal-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bottom-nav {
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            padding: 8px 0 12px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            transition: color 0.2s;
+            padding: 4px 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--verde);
+        }
+
+        .nav-item i {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        .input-auth {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .input-auth:focus {
+            border-color: var(--verde);
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(0, 151, 57, 0.1);
+        }
+
+        .input-auth:disabled {
+            opacity: 0.6;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            padding: 12px 24px;
+            border-radius: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            animation: slideDown 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateX(-50%) translateY(-100px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+
+        .toast-success {
+            background: var(--verde);
+            color: white;
+        }
+
+        .toast-error {
+            background: #dc2626;
+            color: white;
+        }
+
+        .toast-info {
+            background: var(--azul);
+            color: white;
+        }
+
+        .toast-warning {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ========== HEADER BRASIL ========== -->
+    <header class="header-brasil text-white">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold header-title flex items-center gap-2">
+                    <i class="fas fa-futbol"></i> Bolão da Copa
+                </h1>
+                <p class="text-sm opacity-90 header-subtitle mt-0.5">
+                    <i class="fas fa-star text-yellow-200"></i> Palpites & Ranking
+                </p>
+            </div>
+            <div id="userInfo" class="flex items-center gap-2 bg-white/20 backdrop-blur px-3 py-1.5 rounded-full">
+                <i class="fas fa-user-circle text-xl"></i>
+                <span id="userName" class="text-sm font-semibold truncate max-w-[80px]">Carregando...</span>
+            </div>
+        </div>
+        <div class="mt-2 flex items-center gap-3 text-sm bg-white/10 rounded-full px-4 py-1.5 w-fit">
+            <i class="fas fa-trophy text-yellow-200"></i>
+            <span class="font-semibold">Meus pontos:</span>
+            <span id="userPontos" class="font-bold text-yellow-200 text-base">0</span>
+        </div>
+    </header>
+
+    <!-- ========== CONTEÚDO PRINCIPAL ========== -->
+    <main class="px-4 pt-5 pb-4 max-w-2xl mx-auto" id="mainContent">
+
+        <!-- ===== TELA DE AUTENTICAÇÃO ===== -->
+        <div id="authContainer" class="fade-in">
+            <div class="card-bolao p-6">
+                <div class="text-center mb-6">
+                    <i class="fas fa-futbol text-5xl text-[var(--verde)]"></i>
+                    <h2 class="text-2xl font-bold text-[var(--azul)] mt-2">Bem-vindo!</h2>
+                    <p class="text-gray-500 text-sm">Entre ou crie sua conta para palpitar</p>
+                </div>
+
+                <!-- Abas Login / Cadastro -->
+                <div class="flex rounded-full bg-gray-100 p-1 mb-5">
+                    <button id="tabLogin" class="flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-active">
+                        <i class="fas fa-sign-in-alt mr-1"></i> Login
+                    </button>
+                    <button id="tabCadastro" class="flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-inactive">
+                        <i class="fas fa-user-plus mr-1"></i> Cadastro
+                    </button>
+                </div>
+
+                <!-- Form Login -->
+                <form id="formLogin" class="space-y-4">
+                    <input type="email" id="loginEmail" placeholder="Seu e-mail" class="input-auth" required />
+                    <input type="password" id="loginPassword" placeholder="Senha" class="input-auth" required minlength="6" />
+                    <button type="submit" id="btnLogin" class="btn-verde w-full text-lg">
+                        <i class="fas fa-arrow-right-to-bracket mr-2"></i> Entrar
+                    </button>
+                    <p id="loginError" class="text-red-500 text-sm text-center hidden"></p>
+                </form>
+
+                <!-- Form Cadastro -->
+                <form id="formCadastro" class="space-y-4 hidden">
+                    <input type="text" id="cadNome" placeholder="Nome de usuário" class="input-auth" required minlength="3" />
+                    <p class="text-xs text-gray-400 -mt-2">Use apenas letras, números e underline</p>
+                    <input type="email" id="cadEmail" placeholder="Seu e-mail" class="input-auth" required />
+                    <input type="password" id="cadPassword" placeholder="Senha (mín. 6 caracteres)" class="input-auth" required minlength="6" />
+                    <button type="submit" id="btnCadastro" class="btn-amarelo w-full text-lg">
+                        <i class="fas fa-user-plus mr-2"></i> Criar conta
+                    </button>
+                    <p id="cadError" class="text-red-500 text-sm text-center hidden"></p>
+                </form>
+            </div>
+
+            <div class="text-center mt-4 text-xs text-gray-400">
+                <i class="fas fa-shield-alt mr-1"></i> Seguro com Supabase Auth
+            </div>
+        </div>
+
+        <!-- ===== TELA PRINCIPAL (logado) ===== -->
+        <div id="appContainer" class="hidden fade-in">
+
+            <!-- Tabs -->
+            <div class="flex bg-white rounded-2xl shadow-sm p-1 mb-4 border border-gray-100">
+                <button data-tab="jogos" class="tab-btn flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all tab-active">
+                    <i class="fas fa-calendar-day mr-1"></i> Jogos
+                </button>
+                <button data-tab="meus" class="tab-btn flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all tab-inactive">
+                    <i class="fas fa-pen-to-square mr-1"></i> Meus
+                </button>
+                <button data-tab="ranking" class="tab-btn flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all tab-inactive">
+                    <i class="fas fa-ranking-star mr-1"></i> Ranking
+                </button>
+            </div>
+
+            <!-- Painel Jogos -->
+            <div id="panelJogos" class="tab-panel">
+                <div id="jogosContainer" class="space-y-3">
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-3xl"></i>
+                        <p class="mt-2">Carregando jogos...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Meus Palpites -->
+            <div id="panelMeus" class="tab-panel hidden">
+                <div id="meusPalpitesContainer" class="space-y-3">
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-3xl"></i>
+                        <p class="mt-2">Carregando seus palpites...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel Ranking -->
+            <div id="panelRanking" class="tab-panel hidden">
+                <div id="rankingContainer" class="space-y-2">
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-spinner fa-spin text-3xl"></i>
+                        <p class="mt-2">Carregando ranking...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ========== BOTTOM NAV ========== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <div class="flex justify-around max-w-md mx-auto">
+            <button data-tab="jogos" class="nav-item active">
+                <i class="fas fa-calendar-day"></i>
+                <span>Jogos</span>
+            </button>
+            <button data-tab="meus" class="nav-item">
+                <i class="fas fa-pen-to-square"></i>
+                <span>Meus</span>
+            </button>
+            <button data-tab="ranking" class="nav-item">
+                <i class="fas fa-ranking-star"></i>
+                <span>Ranking</span>
+            </button>
+            <button id="btnLogout" class="nav-item text-red-400">
+                <i class="fas fa-right-from-bracket"></i>
+                <span>Sair</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ========== MODAL DE PALPITE ========== -->
+    <div id="palpiteModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 modal-overlay" onclick="if(event.target===this) fecharModal()">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl fade-in">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-[var(--azul)]"><i class="fas fa-pen-to-square text-[var(--verde)] mr-2"></i>Dar Palpite</h3>
+                <button onclick="fecharModal()" class="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+            <div id="modalJogoInfo" class="flex items-center justify-between bg-gray-50 rounded-2xl p-3 mb-4"></div>
+            <div class="flex items-center justify-center gap-4 my-4">
+                <div class="text-center">
+                    <img id="modalEscudoCasa" src="" alt="Casa" class="escudo mx-auto" />
+                    <span id="modalTimeCasa" class="text-sm font-semibold block mt-1">Casa</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="modalPlacarCasa" min="0" max="20" value="0" class="placar-input" />
+                    <span class="text-xl font-bold text-gray-400">x</span>
+                    <input type="number" id="modalPlacarFora" min="0" max="20" value="0" class="placar-input" />
+                </div>
+                <div class="text-center">
+                    <img id="modalEscudoFora" src="" alt="Fora" class="escudo mx-auto" />
+                    <span id="modalTimeFora" class="text-sm font-semibold block mt-1">Fora</span>
+                </div>
+            </div>
+            <p id="modalError" class="text-red-500 text-sm text-center hidden"></p>
+            <button id="btnSalvarPalpite" class="btn-verde w-full text-lg mt-2">
+                <i class="fas fa-save mr-2"></i> Salvar Palpite
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== SCRIPT ========== -->
+    <script>
+        // ============================================================
+        //  CONFIGURAÇÕES
+        // ============================================================
+        const API_BASE = 'https://backend-copa-gold.vercel.app';
+
+        // ============================================================
+        //  ESTADO GLOBAL
+        // ============================================================
+        let currentUser = null;
+        let currentUserId = null;
+        let userPontos = 0;
+        let jogos = [];
+        let meusPalpites = [];
+
+        // ============================================================
+        //  ELEMENTOS DOM
+        // ============================================================
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        const authContainer = $('#authContainer');
+        const appContainer = $('#appContainer');
+        const userName = $('#userName');
+        const userPontosEl = $('#userPontos');
+
+        const formLogin = $('#formLogin');
+        const formCadastro = $('#formCadastro');
+        const tabLogin = $('#tabLogin');
+        const tabCadastro = $('#tabCadastro');
+        const loginError = $('#loginError');
+        const cadError = $('#cadError');
+        const btnLogin = $('#btnLogin');
+        const btnCadastro = $('#btnCadastro');
+
+        const jogosContainer = $('#jogosContainer');
+        const meusPalpitesContainer = $('#meusPalpitesContainer');
+        const rankingContainer = $('#rankingContainer');
+
+        const modal = $('#palpiteModal');
+        const modalJogoInfo = $('#modalJogoInfo');
+        const modalEscudoCasa = $('#modalEscudoCasa');
+        const modalTimeCasa = $('#modalTimeCasa');
+        const modalEscudoFora = $('#modalEscudoFora');
+        const modalTimeFora = $('#modalTimeFora');
+        const modalPlacarCasa = $('#modalPlacarCasa');
+        const modalPlacarFora = $('#modalPlacarFora');
+        const modalError = $('#modalError');
+        const btnSalvarPalpite = $('#btnSalvarPalpite');
+
+        let modalJogoId = null;
+
+        // ============================================================
+        //  TOAST NOTIFICATIONS
+        // ============================================================
+        function showToast(message, type = 'info') {
+            document.querySelectorAll('.toast').forEach(el => el.remove());
+            
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE API - COM DEBUG COMPLETO
+        // ============================================================
+
+        async function apiFetch(endpoint, options = {}) {
+            const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+            const url = `${API_BASE}${cleanEndpoint}`;
+            
+            const defaultOpts = {
+                headers: { 'Content-Type': 'application/json' },
+                ...options
+            };
+            if (options.body && typeof options.body === 'object') {
+                defaultOpts.body = JSON.stringify(options.body);
+            }
+            
+            console.log(`📤 ${options.method || 'GET'} ${url}`);
+            console.log('📦 Headers:', defaultOpts.headers);
+            if (defaultOpts.body) {
+                console.log('📦 Body:', defaultOpts.body);
+            }
+
+            try {
+                const res = await fetch(url, defaultOpts);
+                console.log(`📥 Status: ${res.status} ${res.statusText}`);
+                console.log('📥 Headers:', Object.fromEntries(res.headers.entries()));
+                
+                const contentType = res.headers.get('content-type');
+                let data;
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await res.json();
+                    console.log('📥 JSON Response:', data);
+                } else {
+                    const text = await res.text();
+                    console.log('📥 Text Response:', text.substring(0, 500));
+                    throw new Error(`Resposta não é JSON: ${text.substring(0, 100)}`);
+                }
+                
+                if (!res.ok) {
+                    console.error('❌ Resposta completa do backend:', JSON.stringify(data, null, 2));
+                    let errorMsg = data.error || data.message || data.details || '';
+                    if (typeof errorMsg === 'object') {
+                        errorMsg = errorMsg.message || JSON.stringify(errorMsg);
+                    }
+                    if (!errorMsg || errorMsg === '{}') {
+                        errorMsg = `Erro do servidor (status ${res.status}). Tente novamente.`;
+                    }
+                    console.error('❌ Erro do backend:', errorMsg);
+                    throw new Error(errorMsg);
+                }
+                return data;
+            } catch (e) {
+                console.error('❌ API Error:', e);
+                throw e;
+            }
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE AUTENTICAÇÃO
+        // ============================================================
+
+        async function login(email, password) {
+            const data = await apiFetch('/api/auth/login', {
+                method: 'POST',
+                body: { email, password }
+            });
+            return data;
+        }
+
+        async function cadastro(email, password, nome_usuario) {
+            const data = await apiFetch('/api/auth/cadastro', {
+                method: 'POST',
+                body: { 
+                    email, 
+                    password, 
+                    nome_usuario
+                }
+            });
+            return data;
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE DADOS
+        // ============================================================
+
+        async function buscarJogos() {
+            const data = await apiFetch('/api/jogos');
+            return data;
+        }
+
+        async function buscarMeusPalpites(userId) {
+            const data = await apiFetch(`/api/palpites/usuario/${userId}`);
+            return data;
+        }
+
+        async function salvarPalpite(userId, jogoId, placar_casa, placar_fora) {
+            const data = await apiFetch('/api/palpites', {
+                method: 'POST',
+                body: { userId, jogoId, placar_casa, placar_fora }
+            });
+            return data;
+        }
+
+        async function buscarRanking() {
+            const data = await apiFetch('/api/ranking');
+            return data;
+        }
+
+        async function buscarPerfil(userId) {
+            const data = await apiFetch('/api/perfil', {
+                method: 'POST',
+                body: { userId }
+            });
+            return data;
+        }
+
+        // ============================================================
+        //  FUNÇÕES DE UI
+        // ============================================================
+
+        function mostrarErro(element, msg) {
+            element.textContent = msg;
+            element.classList.remove('hidden');
+        }
+
+        function esconderErro(element) {
+            element.classList.add('hidden');
+        }
+
+        function setLoading(btn, loading) {
+            if (loading) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Aguarde...';
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = btn.dataset.original || btn.textContent;
+            }
+        }
+
+        function salvarBtnOriginal(btn) {
+            btn.dataset.original = btn.innerHTML;
+        }
+
+        function atualizarHeader(user) {
+            if (user) {
+                userName.textContent = user.nome_usuario || user.email?.split('@')[0] || 'Usuário';
+                userPontosEl.textContent = user.pontos || 0;
+                currentUserId = user.id;
+                userPontos = user.pontos || 0;
+            }
+        }
+
+        function setAuthScreen(showAuth) {
+            if (showAuth) {
+                authContainer.classList.remove('hidden');
+                appContainer.classList.add('hidden');
+                const bottomNav = document.querySelector('.bottom-nav');
+                if (bottomNav) bottomNav.classList.add('hidden');
+            } else {
+                authContainer.classList.add('hidden');
+                appContainer.classList.remove('hidden');
+                const bottomNav = document.querySelector('.bottom-nav');
+                if (bottomNav) bottomNav.classList.remove('hidden');
+            }
+        }
+
+        // ============================================================
+        //  VALIDAÇÃO DE NOME DE USUÁRIO
+        // ============================================================
+
+        function validarNomeUsuario(nome) {
+            const regex = /^[a-zA-Z0-9_]+$/;
+            if (!regex.test(nome)) {
+                return 'Nome de usuário deve conter apenas letras, números e underline (sem acentos)';
+            }
+            if (nome.length < 3) {
+                return 'Nome de usuário deve ter no mínimo 3 caracteres';
+            }
+            return null;
+        }
+
+        // ============================================================
+        //  RENDERIZAÇÃO
+        // ============================================================
+
+        function renderJogos(jogosData) {
+            if (!jogosData || jogosData.length === 0) {
+                jogosContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fas fa-futbol text-4xl opacity-30"></i>
+                        <p class="mt-2">Nenhum jogo disponível</p>
+                        <p class="text-sm">Os jogos serão adicionados em breve!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            jogosData.forEach(jogo => {
+                const jaPalpitou = meusPalpites.some(p => p.jogo_id === jogo.id);
+                const palpite = meusPalpites.find(p => p.jogo_id === jogo.id);
+                const isEncerrado = jogo.encerrado === true;
+
+                let statusBadge = '';
+                if (isEncerrado) {
+                    statusBadge = `<span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full"><i class="fas fa-check-circle mr-1"></i>Encerrado</span>`;
+                } else if (jaPalpitou) {
+                    statusBadge = `<span class="text-xs bg-[var(--verde)] text-white px-2 py-0.5 rounded-full"><i class="fas fa-check mr-1"></i>Palpite dado</span>`;
+                } else {
+                    statusBadge = `<span class="text-xs bg-[var(--amarelo)] text-[var(--azul)] px-2 py-0.5 rounded-full"><i class="fas fa-pen mr-1"></i>Aguardando</span>`;
+                }
+
+                const dataJogo = jogo.data_jogo ? new Date(jogo.data_jogo).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                }) : 'Data indefinida';
+
+                const golsCasa = jogo.gols_casa !== undefined && jogo.gols_casa !== null ? jogo.gols_casa : '?';
+                const golsFora = jogo.gols_fora !== undefined && jogo.gols_fora !== null ? jogo.gols_fora : '?';
+
+                let placarDisplay = '';
+                if (isEncerrado) {
+                    placarDisplay = `<span class="text-xl font-bold text-[var(--azul)]">${golsCasa} x ${golsFora}</span>`;
+                } else if (jaPalpitou && palpite) {
+                    placarDisplay = `
+                        <span class="text-sm font-semibold text-[var(--verde)] bg-green-50 px-3 py-1 rounded-full">
+                            ${palpite.palpite_casa} x ${palpite.palpite_fora}
+                        </span>
+                    `;
+                } else {
+                    placarDisplay = `
+                        <button onclick="abrirModal('${jogo.id}')" class="btn-verde text-sm px-4 py-1.5 rounded-xl">
+                            <i class="fas fa-pen mr-1"></i> Palpitar
+                        </button>
+                    `;
+                }
+
+                html += `
+                    <div class="card-bolao p-4 jogo-card w-full fade-in">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-xs text-gray-400"><i class="far fa-calendar-alt mr-1"></i>${dataJogo}</div>
+                            ${statusBadge}
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <img src="${jogo.escudo_casa || ''}" alt="${jogo.time_casa}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_casa?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                                <span class="font-semibold text-sm truncate">${jogo.time_casa || 'Casa'}</span>
+                            </div>
+                            <div class="flex items-center gap-2 mx-2">
+                                ${placarDisplay}
+                            </div>
+                            <div class="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                <span class="font-semibold text-sm truncate">${jogo.time_fora || 'Fora'}</span>
+                                <img src="${jogo.escudo_fora || ''}" alt="${jogo.time_fora}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_fora?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            jogosContainer.innerHTML = html;
+        }
+
+        function renderMeusPalpites(palpites) {
+            if (!palpites || palpites.length === 0) {
+                meusPalpitesContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fas fa-pen-to-square text-4xl opacity-30"></i>
+                        <p class="mt-2">Você ainda não deu palpites</p>
+                        <p class="text-sm">Vá em "Jogos" e comece a palpitar!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            palpites.forEach(p => {
+                const jogo = p.jogos || {};
+                const isEncerrado = jogo.encerrado === true;
+                const dataJogo = jogo.data_jogo ? new Date(jogo.data_jogo).toLocaleDateString('pt-BR', {
+                    day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                }) : '--';
+
+                let status = '';
+                let pontos = '';
+                if (isEncerrado) {
+                    status = `<span class="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">Encerrado</span>`;
+                    if (p.pontos_recebidos > 0) {
+                        pontos = `<span class="badge-pontos"><i class="fas fa-star mr-1"></i>+${p.pontos_recebidos}</span>`;
+                    } else {
+                        pontos = `<span class="text-xs text-gray-400">0 pts</span>`;
+                    }
+                } else {
+                    status = `<span class="text-xs bg-[var(--verde)] text-white px-2 py-0.5 rounded-full">Aberto</span>`;
+                    pontos = `<span class="text-xs text-gray-400">Aguardando</span>`;
+                }
+
+                const golsReais = isEncerrado ? `${jogo.gols_casa ?? '?'} x ${jogo.gols_fora ?? '?'}` : '-- x --';
+
+                html += `
+                    <div class="card-bolao p-4 fade-in">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-xs text-gray-400"><i class="far fa-calendar-alt mr-1"></i>${dataJogo}</div>
+                            ${status}
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <img src="${jogo.escudo_casa || ''}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_casa?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                                <span class="font-semibold text-sm truncate">${jogo.time_casa || 'Casa'}</span>
+                            </div>
+                            <div class="flex flex-col items-center mx-2">
+                                <span class="text-sm font-bold text-[var(--azul)]">${p.palpite_casa} x ${p.palpite_fora}</span>
+                                ${isEncerrado ? `<span class="text-xs text-gray-400">${golsReais}</span>` : ''}
+                            </div>
+                            <div class="flex items-center gap-2 flex-1 min-w-0 justify-end">
+                                <span class="font-semibold text-sm truncate">${jogo.time_fora || 'Fora'}</span>
+                                <img src="${jogo.escudo_fora || ''}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_fora?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                            </div>
+                        </div>
+                        <div class="flex justify-end mt-2">
+                            ${pontos}
+                        </div>
+                    </div>
+                `;
+            });
+
+            meusPalpitesContainer.innerHTML = html;
+        }
+
+        function renderRanking(rankingData) {
+            if (!rankingData || rankingData.length === 0) {
+                rankingContainer.innerHTML = `
+                    <div class="text-center py-10 text-gray-400">
+                        <i class="fas fa-ranking-star text-4xl opacity-30"></i>
+                        <p class="mt-2">Nenhum participante ainda</p>
+                        <p class="text-sm">Seja o primeiro a pontuar!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            rankingData.forEach((user, index) => {
+                const medalha = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index+1}`;
+                const isCurrentUser = user.id === currentUserId;
+
+                html += `
+                    <div class="card-bolao p-3 flex items-center justify-between ${isCurrentUser ? 'border-l-4 border-[var(--verde)]' : ''} fade-in">
+                        <div class="flex items-center gap-3">
+                            <span class="text-lg font-bold w-8 text-center ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-400' : 'text-gray-300'}">
+                                ${medalha}
+                            </span>
+                            <div>
+                                <span class="font-semibold ${isCurrentUser ? 'text-[var(--verde)]' : ''}">
+                                    ${user.nome_usuario || 'Usuário'}
+                                    ${isCurrentUser ? ' <i class="fas fa-user-check text-[var(--verde)] text-xs"></i>' : ''}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="badge-pontos text-base">
+                            <i class="fas fa-star text-[var(--amarelo)] mr-1"></i> ${user.pontos || 0}
+                        </div>
+                    </div>
+                `;
+            });
+
+            rankingContainer.innerHTML = html;
+        }
+
+        // ============================================================
+        //  MODAL DE PALPITE
+        // ============================================================
+
+        function abrirModal(jogoId) {
+            const jogo = jogos.find(j => j.id == jogoId);
+            if (!jogo) {
+                showToast('Jogo não encontrado!', 'error');
+                return;
+            }
+            if (jogo.encerrado) {
+                showToast('Este jogo já está encerrado!', 'error');
+                return;
+            }
+
+            modalJogoId = jogoId;
+            modalJogoInfo.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <img src="${jogo.escudo_casa || ''}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_casa?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                    <span class="font-semibold">${jogo.time_casa || 'Casa'}</span>
+                </div>
+                <span class="text-gray-400">vs</span>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold">${jogo.time_fora || 'Fora'}</span>
+                    <img src="${jogo.escudo_fora || ''}" class="escudo-sm" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2236%22 height=%2236%22%3E%3Crect width=%2236%22 height=%2236%22 fill=%22%23e2e8f0%22/%3E%3Ctext x=%228%22 y=%2224%22 font-size=%2214%22 fill=%22%2394a3b8%22%3E${jogo.time_fora?.charAt(0)||'?'}%3C/text%3E%3C/svg%3E'" />
+                </div>
+            `;
+
+            modalEscudoCasa.src = jogo.escudo_casa || '';
+            modalTimeCasa.textContent = jogo.time_casa || 'Casa';
+            modalEscudoFora.src = jogo.escudo_fora || '';
+            modalTimeFora.textContent = jogo.time_fora || 'Fora';
+
+            const palpiteExistente = meusPalpites.find(p => p.jogo_id === jogoId);
+            if (palpiteExistente) {
+                modalPlacarCasa.value = palpiteExistente.palpite_casa;
+                modalPlacarFora.value = palpiteExistente.palpite_fora;
+            } else {
+                modalPlacarCasa.value = 0;
+                modalPlacarFora.value = 0;
+            }
+
+            modalError.classList.add('hidden');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function fecharModal() {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+            modalJogoId = null;
+        }
+
+        // ============================================================
+        //  EVENTOS
+        // ============================================================
+
+        tabLogin.addEventListener('click', () => {
+            tabLogin.className = 'flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-active';
+            tabCadastro.className = 'flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-inactive';
+            formLogin.classList.remove('hidden');
+            formCadastro.classList.add('hidden');
+            esconderErro(loginError);
+            esconderErro(cadError);
+        });
+
+        tabCadastro.addEventListener('click', () => {
+            tabCadastro.className = 'flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-active';
+            tabLogin.className = 'flex-1 py-2.5 rounded-full font-semibold text-sm transition-all tab-inactive';
+            formLogin.classList.add('hidden');
+            formCadastro.classList.remove('hidden');
+            esconderErro(loginError);
+            esconderErro(cadError);
+        });
+
+        // Login
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = $('#loginEmail').value.trim();
+            const password = $('#loginPassword').value;
+
+            esconderErro(loginError);
+            setLoading(btnLogin, true);
+
+            try {
+                const data = await login(email, password);
+                if (data.user) {
+                    currentUser = data.user;
+                    atualizarHeader(data.user);
+                    localStorage.setItem('bolao_user', JSON.stringify(data.user));
+                    setAuthScreen(false);
+                    await carregarDados();
+                    showToast(`Bem-vindo, ${data.user.nome_usuario || 'Usuário'}!`, 'success');
+                } else {
+                    mostrarErro(loginError, 'Erro ao fazer login. Tente novamente.');
+                }
+            } catch (err) {
+                mostrarErro(loginError, err.message || 'Erro ao fazer login');
+                showToast(err.message || 'Erro ao fazer login', 'error');
+            } finally {
+                setLoading(btnLogin, false);
+            }
+        });
+
+        // Cadastro - COM DEBUG EXTRA
+        formCadastro.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nome = $('#cadNome').value.trim();
+            const email = $('#cadEmail').value.trim();
+            const password = $('#cadPassword').value;
+
+            console.log('🔍 Dados do formulário:');
+            console.log('  Nome:', nome);
+            console.log('  Email:', email);
+            console.log('  Senha:', password);
+
+            esconderErro(cadError);
+
+            // Valida nome de usuário
+            const erroValidacao = validarNomeUsuario(nome);
+            if (erroValidacao) {
+                mostrarErro(cadError, erroValidacao);
+                showToast(erroValidacao, 'warning');
+                return;
+            }
+
+            // Valida email
+            if (!email || !email.includes('@')) {
+                mostrarErro(cadError, 'Email inválido');
+                showToast('Email inválido', 'warning');
+                return;
+            }
+
+            // Valida senha
+            if (password.length < 6) {
+                mostrarErro(cadError, 'Senha deve ter no mínimo 6 caracteres');
+                showToast('Senha deve ter no mínimo 6 caracteres', 'warning');
+                return;
+            }
+
+            setLoading(btnCadastro, true);
+
+            try {
+                // Tenta o cadastro com o campo correto
+                console.log('📝 Enviando cadastro com:', { 
+                    email, 
+                    nome, 
+                    nome_usuario: nome // Campo correto
+                });
+                
+                const data = await cadastro(email, password, nome);
+                console.log('📥 Resposta do cadastro:', data);
+                
+                if (data.success) {
+                    showToast('✅ Cadastro realizado com sucesso! Faça login.', 'success');
+                    // Volta para a tela de login
+                    tabLogin.click();
+                    $('#loginEmail').value = email;
+                    $('#loginPassword').value = '';
+                    $('#cadNome').value = '';
+                    $('#cadEmail').value = '';
+                    $('#cadPassword').value = '';
+                } else {
+                    const msg = data.error || 'Erro ao cadastrar';
+                    mostrarErro(cadError, msg);
+                    showToast(msg, 'error');
+                }
+            } catch (err) {
+                console.error('❌ Erro no cadastro:', err);
+                console.error('❌ Stack:', err.stack);
+                
+                const msg = err.message || 'Erro ao cadastrar. Tente novamente.';
+                mostrarErro(cadError, msg);
+                showToast(msg, 'error');
+            } finally {
+                setLoading(btnCadastro, false);
+            }
+        });
+
+        // Tabs do app
+        const tabBtns = $$('.tab-btn');
+        const panels = {
+            jogos: $('#panelJogos'),
+            meus: $('#panelMeus'),
+            ranking: $('#panelRanking')
+        };
+
+        function switchTab(tabName) {
+            tabBtns.forEach(btn => {
+                const tab = btn.dataset.tab;
+                if (tab === tabName) {
+                    btn.className = 'tab-btn flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all tab-active';
+                } else {
+                    btn.className = 'tab-btn flex-1 py-2.5 rounded-xl font-semibold text-sm transition-all tab-inactive';
+                }
+            });
+
+            Object.keys(panels).forEach(key => {
+                if (key === tabName) {
+                    panels[key].classList.remove('hidden');
+                } else {
+                    panels[key].classList.add('hidden');
+                }
+            });
+
+            $$('.nav-item').forEach(item => {
+                const tab = item.dataset.tab;
+                if (tab === tabName) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                switchTab(btn.dataset.tab);
+            });
+        });
+
+        $$('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const tab = item.dataset.tab;
+                if (tab) switchTab(tab);
+            });
+        });
+
+        // Logout
+        $('#btnLogout').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem('bolao_user');
+                currentUser = null;
+                currentUserId = null;
+                userPontos = 0;
+                setAuthScreen(true);
+                jogos = [];
+                meusPalpites = [];
+                $('#loginEmail').value = '';
+                $('#loginPassword').value = '';
+                esconderErro(loginError);
+                showToast('Você saiu do sistema', 'info');
+            }
+        });
+
+        // Salvar palpite
+        btnSalvarPalpite.addEventListener('click', async () => {
+            if (!modalJogoId || !currentUserId) {
+                showToast('Usuário não identificado', 'error');
+                return;
+            }
+
+            const placarCasa = parseInt(modalPlacarCasa.value) || 0;
+            const placarFora = parseInt(modalPlacarFora.value) || 0;
+
+            if (placarCasa < 0 || placarFora < 0) {
+                mostrarErro(modalError, 'Placar não pode ser negativo');
+                return;
+            }
+
+            if (placarCasa > 20 || placarFora > 20) {
+                mostrarErro(modalError, 'Placar máximo é 20');
+                return;
+            }
+
+            esconderErro(modalError);
+            setLoading(btnSalvarPalpite, true);
+
+            try {
+                const data = await salvarPalpite(currentUserId, modalJogoId, placarCasa, placarFora);
+                if (data.success) {
+                    await carregarDados();
+                    fecharModal();
+                    showToast('✅ Palpite salvo com sucesso!', 'success');
+                    
+                    const btn = document.querySelector(`[onclick="abrirModal('${modalJogoId}')"]`);
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-check mr-1"></i> Salvo!';
+                        btn.className = 'bg-green-500 text-white text-sm px-4 py-1.5 rounded-xl';
+                        setTimeout(() => {
+                            btn.className = 'btn-verde text-sm px-4 py-1.5 rounded-xl';
+                            btn.innerHTML = '<i class="fas fa-pen mr-1"></i> Palpitar';
+                        }, 2000);
+                    }
+                } else {
+                    mostrarErro(modalError, data.error || 'Erro ao salvar palpite');
+                    showToast(data.error || 'Erro ao salvar palpite', 'error');
+                }
+            } catch (err) {
+                mostrarErro(modalError, err.message || 'Erro ao salvar palpite');
+                showToast(err.message || 'Erro ao salvar palpite', 'error');
+            } finally {
+                setLoading(btnSalvarPalpite, false);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fecharModal();
+        });
+
+        // ============================================================
+        //  CARREGAR DADOS
+        // ============================================================
+
+        async function carregarDados() {
+            if (!currentUserId) {
+                showToast('Usuário não autenticado', 'error');
+                return;
+            }
+
+            try {
+                const jogosData = await buscarJogos();
+                jogos = jogosData || [];
+
+                const palpitesData = await buscarMeusPalpites(currentUserId);
+                meusPalpites = palpitesData || [];
+
+                const rankingData = await buscarRanking();
+
+                try {
+                    const perfilRes = await buscarPerfil(currentUserId);
+                    if (perfilRes && perfilRes.pontos !== undefined) {
+                        userPontos = perfilRes.pontos;
+                        userPontosEl.textContent = userPontos;
+                        if (currentUser) {
+                            currentUser.pontos = userPontos;
+                            atualizarHeader(currentUser);
+                            localStorage.setItem('bolao_user', JSON.stringify(currentUser));
+                        }
+                    }
+                } catch (e) {
+                    console.log('Perfil não encontrado, continuando...');
+                }
+
+                renderJogos(jogos);
+                renderMeusPalpites(meusPalpites);
+                renderRanking(rankingData);
+
+            } catch (err) {
+                console.error('Erro ao carregar dados:', err);
+                showToast('Erro ao carregar dados. Verifique sua conexão.', 'error');
+                jogosContainer.innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="fas fa-exclamation-circle text-3xl"></i>
+                        <p class="mt-2">Erro ao carregar dados</p>
+                        <p class="text-sm text-gray-500">${err.message || 'Tente novamente'}</p>
+                        <button onclick="carregarDados()" class="btn-verde text-sm mt-2 px-4 py-1.5">
+                            <i class="fas fa-refresh mr-1"></i> Tentar novamente
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================
+        //  VERIFICAÇÃO DE SESSÃO
+        // ============================================================
+
+        function verificarSessao() {
+            const savedUser = localStorage.getItem('bolao_user');
+            if (savedUser) {
+                try {
+                    const user = JSON.parse(savedUser);
+                    currentUser = user;
+                    atualizarHeader(user);
+                    setAuthScreen(false);
+                    carregarDados();
+                    return true;
+                } catch (e) {
+                    localStorage.removeItem('bolao_user');
+                }
+            }
+            return false;
+        }
+
+        // ============================================================
+        //  TESTE DE CONECTIVIDADE
+        // ============================================================
+
+        async function testBackend() {
+            try {
+                console.log('🔍 Testando conexão com backend:', API_BASE);
+                const res = await fetch(`${API_BASE}/api/health`);
+                if (res.ok) {
+                    const data = await res.json();
+                    console.log('✅ Backend online:', data);
+                    showToast('🟢 Conectado ao servidor!', 'success');
+                } else {
+                    console.warn('⚠️ Backend respondeu com status:', res.status);
+                }
+            } catch (e) {
+                console.warn('⚠️ Backend não disponível:', e.message);
+            }
+        }
+
+        // ============================================================
+        //  INICIALIZAÇÃO
+        // ============================================================
+
+        salvarBtnOriginal(btnLogin);
+        salvarBtnOriginal(btnCadastro);
+        salvarBtnOriginal(btnSalvarPalpite);
+
+        console.log('🏆 Bolão da Copa App v1.0');
+        console.log('🔗 API Base:', API_BASE);
+        console.log('📱 Modo:', window.innerWidth < 768 ? 'Mobile' : 'Desktop');
+
+        if (!verificarSessao()) {
+            setAuthScreen(true);
+        }
+
+        if (!currentUserId) {
+            setAuthScreen(true);
+        }
+
+        setTimeout(testBackend, 1000);
+        console.log('✅ App inicializado com sucesso!');
+    </script>
+</body>
+</html>
